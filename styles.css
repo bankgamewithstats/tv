@@ -187,12 +187,13 @@ body {
 
 /* ---- Confetti canvas ---- */
 #confetti-canvas {
-  position: absolute;
+  position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none; /* clicks pass through to content below */
-  z-index: 100;
+  pointer-events: none;
+  z-index: 999;
+  display: none; /* shown only while confetti is running */
 }
 
 /* ---- End screen ---- */
@@ -366,7 +367,14 @@ body {
 
 /* ---- Multi-column leaderboard for large parties ---- */
 
-/* 7+ players: smaller rows on all screen sizes */
+/* 7-10 players: shrink rows so all fit on screen in one column */
+.lb-small .player-row { padding: 0.35rem 0.9rem; }
+.lb-small .player-name { font-size: 1.35rem; }
+.lb-small .player-score { font-size: 1.4rem; }
+.lb-small .rank { font-size: 1rem; }
+.lb-small.leaderboard { gap: 0.3rem; }
+
+/* 11+ players: two/three columns, smaller rows */
 .lb-large .player-row,
 .lb-xl .player-row {
   padding: 0.45rem 0.9rem;

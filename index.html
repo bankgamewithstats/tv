@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- Confetti lives at body level so it isn't a flex child of any screen -->
+  <canvas id="confetti-canvas"></canvas>
+
   <!-- Idle/waiting state -->
   <div id="waiting-screen" class="screen">
     <div class="logo-corner">
@@ -21,7 +24,6 @@
 
   <!-- End screen -->
   <div id="end-screen" class="screen hidden">
-    <canvas id="confetti-canvas"></canvas>
     <div class="logo-corner">
       <img src="logo.png" alt="Bank" class="logo-img" />
     </div>
@@ -129,10 +131,11 @@
       // Show game screen
       showGame();
 
-      // Scale leaderboard columns based on player count
+      // Scale leaderboard based on player count — never let players go off screen
       const count = state.players.length;
       const cols = count > 20 ? 3 : count > 10 ? 2 : 1;
-      gameScreen.className = `screen${count > 20 ? ' lb-xl' : count > 10 ? ' lb-large' : ''}`;
+      const sizeClass = count > 20 ? ' lb-xl' : count > 10 ? ' lb-large' : count > 6 ? ' lb-small' : '';
+      gameScreen.className = `screen${sizeClass}`;
 
       // Round display
       roundDisplay.textContent = `Round ${state.currentRound} / ${state.totalRounds}`;
@@ -288,14 +291,14 @@
       for (let i = 0; i < count; i++) {
         confettiPieces.push({
           x: Math.random() * w,
-          y: -10 - Math.random() * 200,
-          w: 6 + Math.random() * 8,
-          h: 10 + Math.random() * 6,
+          y: -10 - Math.random() * 120,
+          w: 4 + Math.random() * 4,
+          h: 5 + Math.random() * 4,
           color: COLORS[Math.floor(Math.random() * COLORS.length)],
           angle: Math.random() * Math.PI * 2,
-          spin: (Math.random() - 0.5) * 0.2,
-          vx: (Math.random() - 0.5) * 2,
-          vy: 2 + Math.random() * 3,
+          spin: (Math.random() - 0.5) * 0.15,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: 1.5 + Math.random() * 2.5,
           opacity: 1,
         });
       }
@@ -324,7 +327,7 @@
       }
 
       // Keep spawning while running
-      if (confettiRunning && confettiPieces.length < 180) spawnConfetti(3);
+      if (confettiRunning && confettiPieces.length < 60) spawnConfetti(1);
 
       confettiRaf = requestAnimationFrame(tickConfetti);
     }
@@ -332,22 +335,24 @@
     function startConfetti() {
       confettiPieces = [];
       confettiRunning = true;
+      confettiCanvas.style.display = 'block';
       // Defer resize until after the browser reflows the newly-visible canvas
       requestAnimationFrame(() => {
         resizeConfetti();
-        spawnConfetti(120); // initial burst
+        spawnConfetti(50); // initial burst — smaller than before
         if (!confettiRaf) tickConfetti();
       });
     }
 
     function stopConfetti() {
       confettiRunning = false;
-      // Let existing pieces fall off screen naturally, then cancel
+      // Let existing pieces fall off naturally, then hide canvas
       setTimeout(() => {
         cancelAnimationFrame(confettiRaf);
         confettiRaf = null;
         ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
         confettiPieces = [];
+        confettiCanvas.style.display = 'none';
       }, 4000);
     }
 
