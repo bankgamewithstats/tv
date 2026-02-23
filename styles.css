@@ -43,9 +43,9 @@ body {
 }
 
 .logo-img {
-  height: 3.5rem;
+  height: 2rem;
   width: auto;
-  opacity: 0.85;
+  opacity: 1;
 }
 
 /* ---- Waiting screen ---- */
