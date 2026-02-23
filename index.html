@@ -125,6 +125,10 @@
       // Show game screen
       showGame();
 
+      // Scale leaderboard columns based on player count
+      const count = state.players.length;
+      gameScreen.className = `screen${count > 12 ? ' lb-xl' : count > 6 ? ' lb-large' : ''}`;
+
       // Round display
       roundDisplay.textContent = `Round ${state.currentRound} / ${state.totalRounds}`;
 

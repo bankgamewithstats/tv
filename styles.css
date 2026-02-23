@@ -327,3 +327,42 @@ body {
   color: rgba(255, 255, 255, 0.35);
   line-height: 1.4;
 }
+
+/* ---- Multi-column leaderboard for large parties ---- */
+
+/* 7+ players: smaller rows on all screen sizes */
+.lb-large .player-row,
+.lb-xl .player-row {
+  padding: 0.45rem 0.9rem;
+}
+.lb-large .player-name,
+.lb-xl .player-name { font-size: 1.4rem; }
+.lb-large .player-score,
+.lb-xl .player-score { font-size: 1.5rem; }
+.lb-large .rank,
+.lb-xl .rank { font-size: 1.1rem; }
+
+/* Wide screen (TV/desktop): expand header + switch to 2 or 3 columns */
+@media (min-width: 700px) {
+  .lb-large .game-header,
+  .lb-large .leaderboard {
+    max-width: 1100px;
+  }
+  .lb-large .leaderboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-content: start;
+    gap: 0.4rem 1rem;
+  }
+
+  .lb-xl .game-header,
+  .lb-xl .leaderboard {
+    max-width: 1400px;
+  }
+  .lb-xl .leaderboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-content: start;
+    gap: 0.35rem 1rem;
+  }
+}
