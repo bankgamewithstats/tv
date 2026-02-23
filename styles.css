@@ -364,27 +364,12 @@ body {
 .lb-large .rank,
 .lb-xl .rank { font-size: 1.1rem; }
 
-/* Wide screen (TV/desktop): expand header + switch to 2 or 3 columns */
+/* Wide screen (TV/desktop): expand header to match wider leaderboard.
+   Grid layout + column flow direction is handled entirely by JS inline styles. */
 @media (min-width: 700px) {
   .lb-large .game-header,
-  .lb-large .leaderboard {
-    max-width: 1100px;
-  }
-  .lb-large .leaderboard {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-content: start;
-    gap: 0.4rem 1rem;
-  }
+  .lb-large .leaderboard { max-width: 1100px; }
 
   .lb-xl .game-header,
-  .lb-xl .leaderboard {
-    max-width: 1400px;
-  }
-  .lb-xl .leaderboard {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    align-content: start;
-    gap: 0.35rem 1rem;
-  }
+  .lb-xl .leaderboard { max-width: 1400px; }
 }

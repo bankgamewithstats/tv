@@ -127,6 +127,7 @@
 
       // Scale leaderboard columns based on player count
       const count = state.players.length;
+      const cols = count > 12 ? 3 : count > 6 ? 2 : 1;
       gameScreen.className = `screen${count > 12 ? ' lb-xl' : count > 6 ? ' lb-large' : ''}`;
 
       // Round display
@@ -137,6 +138,21 @@
 
       // Sort players by score descending
       const sorted = [...state.players].sort((a, b) => b.score - a.score);
+
+      // Apply column-flow layout after rendering so items read top→bottom in
+      // each column rather than left→right across rows.
+      // grid-auto-flow:column + explicit row count achieves this.
+      if (cols > 1) {
+        const rows = Math.ceil(count / cols);
+        playersList.style.display = 'grid';
+        playersList.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        playersList.style.gridTemplateRows = `repeat(${rows}, auto)`;
+        playersList.style.gridAutoFlow = 'column';
+        playersList.style.gap = '0.4rem 1rem';
+        playersList.style.alignContent = 'start';
+      } else {
+        playersList.style.cssText = '';
+      }
 
       playersList.innerHTML = sorted.map((player, idx) => {
         const isCurrentPlayer = state.players[state.currentPlayerIndex]?.id === player.id && !player.isBanked;
