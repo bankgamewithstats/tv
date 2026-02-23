@@ -79,6 +79,10 @@ body {
   padding-bottom: 2vw;
   border-bottom: 1px solid rgba(203, 154, 69, 0.25);
   margin-bottom: 2vw;
+  max-width: 860px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .round-display {
@@ -119,6 +123,10 @@ body {
   flex-direction: column;
   gap: 0.6vw;
   overflow: hidden; /* single column, no scroll */
+  max-width: 860px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .player-row {
