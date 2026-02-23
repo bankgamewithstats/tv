@@ -185,11 +185,23 @@ body {
   margin-left: 0.3rem;
 }
 
+/* ---- Confetti canvas ---- */
+#confetti-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* clicks pass through to content below */
+  z-index: 100;
+}
+
 /* ---- End screen ---- */
 
 /* Allow scrolling on narrow (phone) screens */
 #end-screen {
   overflow-y: auto;
+  /* Less padding than the live screen — need every pixel on TV */
+  padding: 1.5vw 2vw;
 }
 @media (min-width: 700px) {
   #end-screen { overflow: hidden; }
@@ -199,7 +211,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 1100px;
+  max-width: 1400px; /* wider than live screen — uses more of the TV */
   width: 100%;
   margin: 0 auto;
   min-height: 0;
@@ -209,27 +221,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.8rem;
-  padding: 0.8rem 1.5rem;
+  gap: 0.6rem;
+  padding: 0.4rem 1.2rem;
   background: rgba(203, 154, 69, 0.12);
-  border-radius: 0.7rem;
+  border-radius: 0.5rem;
   border: 2px solid rgba(203, 154, 69, 0.5);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   flex-shrink: 0;
 }
 
-.winner-trophy { font-size: 2.2rem; line-height: 1; }
-.winner-name-text { font-size: 2rem; font-weight: 800; color: #cb9a45; }
+.winner-trophy { font-size: 1.8rem; line-height: 1; }
+.winner-name-text { font-size: 1.6rem; font-weight: 800; color: #cb9a45; }
 
 .end-body {
   display: flex;
   flex: 1;
-  gap: 1.5rem;
+  gap: 1rem;
   min-height: 0;
 }
 
 @media (min-width: 700px) {
-  .end-left { flex: 0 0 280px; overflow: hidden; }
+  .end-left { flex: 0 0 260px; overflow: hidden; }
   /* overflow: hidden — no scrollbar on TV, content clips if needed */
   .end-right { flex: 1; overflow: hidden; min-height: 0; }
 }
@@ -238,22 +250,24 @@ body {
 }
 
 .end-section-title {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: #cb9a45;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin: 0.7rem 0 0.35rem;
+  margin: 0.35rem 0 0.2rem;
 }
+/* First section title needs no top gap */
+.end-right .end-section-title:first-child { margin-top: 0; }
 
 .end-player-row {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  padding: 0.45rem 0.7rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 0.4rem;
   background: rgba(255, 255, 255, 0.05);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
 }
 
 .end-player-row.end-player-winner {
@@ -291,7 +305,7 @@ body {
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr; /* phone: single column, can scroll */
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 @media (min-width: 700px) {
   /* TV/desktop: 3 columns keeps all 11 stats on screen without scrolling */
@@ -301,7 +315,7 @@ body {
 .stat-card-tv {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 0.4rem;
-  padding: 0.6rem 0.8rem;
+  padding: 0.35rem 0.6rem;
   border-left: 3px solid rgba(203, 154, 69, 0.5);
 }
 
