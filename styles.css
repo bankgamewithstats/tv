@@ -1,7 +1,9 @@
 /* styles.css — Bank Game TV leaderboard, 10-foot UI */
 
 :root {
-  font-size: 2.2vw; /* scales with screen width for any TV size */
+  /* TV (large screen at 10ft): 2.2vw feels right.
+     Desktop/laptop: cap so it doesn't balloon — clamp keeps it readable. */
+  font-size: clamp(12px, 2.2vw, 22px);
 }
 
 * {
@@ -35,17 +37,15 @@ body {
 /* ---- Logo corner ---- */
 .logo-corner {
   position: absolute;
-  top: 2vw;
-  right: 3vw;
-  opacity: 0.45;
+  top: 1.5vw;
+  right: 2vw;
+  z-index: 10;
 }
 
-.logo-text {
-  font-size: 1.4rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  color: #cb9a45;
-  text-transform: uppercase;
+.logo-img {
+  height: 3.5rem;
+  width: auto;
+  opacity: 0.85;
 }
 
 /* ---- Waiting screen ---- */
@@ -72,6 +72,7 @@ body {
 
 /* ---- Game screen ---- */
 .game-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -87,6 +88,10 @@ body {
 }
 
 .pot-display {
+  position: absolute;
+  top: 1rem;          /* adjust spacing from the top */
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
@@ -101,7 +106,7 @@ body {
 }
 
 .pot-value {
-  font-size: 3.5rem;
+  font-size: 5rem;
   font-weight: 800;
   color: #cb9a45;
   line-height: 1;
