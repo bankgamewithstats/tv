@@ -1,0 +1,185 @@
+/* styles.css — Bank Game TV leaderboard, 10-foot UI */
+
+:root {
+  font-size: 2.2vw; /* scales with screen width for any TV size */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0f1e4a;
+  color: #ffffff;
+  font-family: system-ui, -apple-system, sans-serif;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* no scrollbar on TV */
+}
+
+/* ---- Screen containers ---- */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 3vw;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ---- Logo corner ---- */
+.logo-corner {
+  position: absolute;
+  top: 2vw;
+  right: 3vw;
+  opacity: 0.45;
+}
+
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #cb9a45;
+  text-transform: uppercase;
+}
+
+/* ---- Waiting screen ---- */
+.waiting-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.waiting-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #cb9a45;
+  letter-spacing: 0.03em;
+}
+
+.waiting-subtitle {
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ---- Game screen ---- */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 2vw;
+  border-bottom: 1px solid rgba(203, 154, 69, 0.25);
+  margin-bottom: 2vw;
+}
+
+.round-display {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.pot-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.pot-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.pot-value {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #cb9a45;
+  line-height: 1;
+}
+
+/* ---- Leaderboard ---- */
+.leaderboard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6vw;
+  overflow: hidden; /* single column, no scroll */
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1.2rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  transition: background 0.3s ease;
+}
+
+.player-row.banked {
+  background: rgba(76, 175, 80, 0.2);
+  border-left: 4px solid rgba(76, 175, 80, 0.6);
+}
+
+.player-row.current {
+  background: rgba(203, 154, 69, 0.12);
+  border-left: 4px solid rgba(203, 154, 69, 0.5);
+}
+
+/* Score flash animation triggered when a player banks */
+@keyframes scoreFlash {
+  0%   { transform: scale(1); background: rgba(255, 255, 255, 0.05); }
+  40%  { transform: scale(1.03); background: rgba(76, 175, 80, 0.45); }
+  100% { transform: scale(1); background: rgba(76, 175, 80, 0.2); }
+}
+
+.player-row.just-banked {
+  animation: scoreFlash 0.7s ease-out forwards;
+}
+
+.rank {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  width: 2.5rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.player-name {
+  flex: 1;
+  font-size: 1.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-score {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #cb9a45;
+  flex-shrink: 0;
+}
+
+.lock-icon {
+  font-size: 1.2rem;
+  opacity: 0.75;
+  margin-left: 0.3rem;
+}
+
+.current-arrow {
+  font-size: 1rem;
+  color: rgba(203, 154, 69, 0.7);
+  margin-left: 0.3rem;
+}
