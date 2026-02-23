@@ -19,6 +19,33 @@
     </div>
   </div>
 
+  <!-- End screen -->
+  <div id="end-screen" class="screen hidden">
+    <div class="logo-corner">
+      <img src="logo.png" alt="Bank" class="logo-img" />
+    </div>
+    <div class="end-wrapper">
+      <div class="winner-banner">
+        <span class="winner-trophy">🏆</span>
+        <span class="winner-name-text" id="winner-name-text">Game Over</span>
+      </div>
+      <div class="end-body">
+        <div class="end-left">
+          <div class="end-section-title">Final Standings</div>
+          <div id="end-players-list"></div>
+        </div>
+        <div class="end-right">
+          <div class="end-section-title">Player Awards</div>
+          <div class="stats-grid" id="stat-player-awards"></div>
+          <div class="end-section-title">Dice &amp; Rolls</div>
+          <div class="stats-grid" id="stat-dice-rolls"></div>
+          <div class="end-section-title">Game Records</div>
+          <div class="stats-grid" id="stat-game-records"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Live leaderboard -->
   <div id="game-screen" class="screen hidden">
     <header class="game-header">
@@ -64,6 +91,7 @@
 
     const waitingScreen = document.getElementById('waiting-screen');
     const gameScreen = document.getElementById('game-screen');
+    const endScreen = document.getElementById('end-screen');
     const roundDisplay = document.getElementById('round-display');
     const potValue = document.getElementById('pot-value');
     const playersList = document.getElementById('players-list');
@@ -71,11 +99,19 @@
     function showWaiting() {
       waitingScreen.classList.remove('hidden');
       gameScreen.classList.add('hidden');
+      endScreen.classList.add('hidden');
     }
 
     function showGame() {
       waitingScreen.classList.add('hidden');
       gameScreen.classList.remove('hidden');
+      endScreen.classList.add('hidden');
+    }
+
+    function showEnd() {
+      waitingScreen.classList.add('hidden');
+      gameScreen.classList.add('hidden');
+      endScreen.classList.remove('hidden');
     }
 
     function formatScore(n) {
@@ -132,6 +168,83 @@
       return div.innerHTML;
     }
 
+    function statCard(label, value, description) {
+      return `
+        <div class="stat-card-tv">
+          <div class="stat-card-label">${label}</div>
+          <div class="stat-card-value">${escapeHtml(value ?? 'No data')}</div>
+          <div class="stat-card-desc">${description}</div>
+        </div>`;
+    }
+
+    function renderEndScreen(state) {
+      showEnd();
+
+      // Winner banner
+      const names = state.winnerNames ?? [];
+      document.getElementById('winner-name-text').textContent =
+        names.length === 1 ? `${names[0]} Wins!` :
+        names.length > 1  ? `It's a Tie! — ${names.join(' & ')}` :
+        'Game Over';
+
+      // Final standings
+      const sorted = [...state.players].sort((a, b) => b.score - a.score);
+      document.getElementById('end-players-list').innerHTML = sorted.map((p, i) => {
+        const isWinner = names.includes(p.name);
+        return `
+          <div class="end-player-row ${isWinner ? 'end-player-winner' : ''}">
+            <span class="end-rank">${i + 1}</span>
+            <span class="end-player-name">${escapeHtml(p.name)}</span>
+            <span class="end-score">${formatScore(p.score)}</span>
+          </div>`;
+      }).join('');
+
+      const s = state.stats;
+      if (!s) return;
+
+      document.getElementById('stat-player-awards').innerHTML = [
+        statCard('Most Greedy Turn',
+          s.mostGreedy ? `${s.mostGreedy.playerName} — ${s.mostGreedy.rollNumber} rolls (Rd ${s.mostGreedy.roundNumber})` : null,
+          'Pushed their luck the longest in a single round.'),
+        statCard('Best Banker',
+          s.bestBanker ? `${s.bestBanker.playerName} — avg ${formatScore(s.bestBanker.avgAmount)} pts` : null,
+          'Highest average points per successful bank.'),
+        statCard('Early Cash-Out',
+          s.earlyCashOut ? `${s.earlyCashOut.playerName} — avg roll ${s.earlyCashOut.avgRolls}` : null,
+          'Banked the earliest on average — cautious and smart.'),
+        statCard('Perfect Timing',
+          s.perfectTiming ? `${s.perfectTiming.playerName} — ${s.perfectTiming.count}x (best ${formatScore(s.perfectTiming.bestAmount)} pts)` : null,
+          'Banked on the very last roll before a 7 crashed.'),
+        statCard('Biggest Bank',
+          s.biggestBank ? `${s.biggestBank.playerName} — ${formatScore(s.biggestBank.amount)} pts (Rd ${s.biggestBank.roundNumber})` : null,
+          'Single largest bank of the entire game.'),
+      ].join('');
+
+      document.getElementById('stat-dice-rolls').innerHTML = [
+        statCard('Ruler of the Sevens',
+          s.rulerOfSevens ? `${s.rulerOfSevens.playerName} — ${s.rulerOfSevens.sevenCount} sevens` : null,
+          'Rolled the most 7s — safe ones and busts included.'),
+        statCard('Most Doubles',
+          s.mostDoubles ? `${s.mostDoubles.playerName} — ${s.mostDoubles.doubleCount} doubles` : null,
+          'Rolled the most doubles — each one doubled the pot.'),
+        statCard('Most Active Roller',
+          s.mostActive ? `${s.mostActive.playerName} — ${s.mostActive.rollCount} rolls` : null,
+          'Rolled the dice the most times across the whole game.'),
+        statCard('Most Common Number',
+          s.mostCommonNumber ? `${s.mostCommonNumber.total} — ${s.mostCommonNumber.count} times` : null,
+          'The dice total that came up most often.'),
+      ].join('');
+
+      document.getElementById('stat-game-records').innerHTML = [
+        statCard('Biggest Missed Opportunity',
+          s.closestCall ? `Round ${s.closestCall.roundNumber} — ${formatScore(s.closestCall.potAmount)} pts wiped` : null,
+          'Highest pot sitting in the bank when a 7 wiped it.'),
+        statCard('Wildest Round',
+          s.wildestRound ? `Round ${s.wildestRound.roundNumber} — ${s.wildestRound.rollCount} rolls` : null,
+          'The round with the most total dice rolls.'),
+      ].join('');
+    }
+
     if (!code) {
       showWaiting();
     } else {
@@ -142,6 +255,8 @@
         const data = snapshot.val();
         if (!data || data.gamePhase === 'setup') {
           showWaiting();
+        } else if (data.gamePhase === 'game-over') {
+          renderEndScreen(data);
         } else {
           renderLeaderboard(data);
         }
