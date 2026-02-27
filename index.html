@@ -104,6 +104,7 @@
       gameScreen.classList.add('hidden');
       endScreen.classList.add('hidden');
       stopConfetti();
+      stopScrollLoop();
     }
 
     function showGame() {
@@ -111,6 +112,7 @@
       gameScreen.classList.remove('hidden');
       endScreen.classList.add('hidden');
       stopConfetti();
+      stopScrollLoop();
     }
 
     function showEnd() {
@@ -284,6 +286,71 @@
           s.wildestRound ? `Round ${s.wildestRound.roundNumber} — ${s.wildestRound.rollCount} rolls` : null,
           'The round with the most total dice rolls.'),
       ].join('');
+
+      // Auto-scroll the player standings on TV if more players than fit on screen
+      requestAnimationFrame(() => {
+        const endLeft = document.querySelector('.end-left');
+        if (endLeft) {
+          endLeft.scrollTop = 0;
+          if (endLeft.scrollHeight > endLeft.clientHeight + 4) {
+            autoScrollLoop(endLeft);
+          }
+        }
+      });
+    }
+
+    // ---- End-screen player list auto-scroll ----
+    // Smoothly scrolls the standings list down then back up on repeat,
+    // so a TV viewer never misses players that don't fit on screen.
+
+    let scrollLoopRaf = null;
+
+    function easeInOut(t) {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
+
+    function autoScrollLoop(el) {
+      if (scrollLoopRaf) cancelAnimationFrame(scrollLoopRaf);
+
+      const SCROLL_MS  = 10000; // time to scroll full list top→bottom
+      const PAUSE_MS   = 2000;  // pause at each end
+
+      let phase = 'pause-top';
+      let phaseStart = null;
+
+      function tick(ts) {
+        if (!phaseStart) phaseStart = ts;
+        const elapsed  = ts - phaseStart;
+        const maxScroll = el.scrollHeight - el.clientHeight;
+        if (maxScroll <= 0) return; // fits on screen — nothing to do
+
+        if (phase === 'pause-top') {
+          el.scrollTop = 0;
+          if (elapsed >= PAUSE_MS) { phase = 'down'; phaseStart = ts; }
+        } else if (phase === 'down') {
+          const t = Math.min(elapsed / SCROLL_MS, 1);
+          el.scrollTop = maxScroll * easeInOut(t);
+          if (t >= 1) { phase = 'pause-bottom'; phaseStart = ts; }
+        } else if (phase === 'pause-bottom') {
+          el.scrollTop = maxScroll;
+          if (elapsed >= PAUSE_MS) { phase = 'up'; phaseStart = ts; }
+        } else if (phase === 'up') {
+          const t = Math.min(elapsed / SCROLL_MS, 1);
+          el.scrollTop = maxScroll * (1 - easeInOut(t));
+          if (t >= 1) { phase = 'pause-top'; phaseStart = ts; }
+        }
+
+        scrollLoopRaf = requestAnimationFrame(tick);
+      }
+
+      scrollLoopRaf = requestAnimationFrame(tick);
+    }
+
+    function stopScrollLoop() {
+      if (scrollLoopRaf) {
+        cancelAnimationFrame(scrollLoopRaf);
+        scrollLoopRaf = null;
+      }
     }
 
     // ---- Confetti ----

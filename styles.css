@@ -212,7 +212,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 1400px; /* wider than live screen — uses more of the TV */
+  max-width: min(1800px, 96vw); /* fill as much of the TV as possible */
   width: 100%;
   margin: 0 auto;
   min-height: 0;
@@ -242,8 +242,12 @@ body {
 }
 
 @media (min-width: 700px) {
-  .end-left { flex: 0 0 260px; overflow: hidden; }
-  /* overflow: hidden — no scrollbar on TV, content clips if needed */
+  .end-left {
+    flex: 0 0 280px;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox: hide scrollbar (JS auto-scrolls it) */
+  }
+  .end-left::-webkit-scrollbar { display: none; } /* Chrome/Safari */
   .end-right { flex: 1; overflow: hidden; min-height: 0; }
 }
 @media (max-width: 699px) {
@@ -251,12 +255,12 @@ body {
 }
 
 .end-section-title {
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #cb9a45;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin: 0.35rem 0 0.2rem;
+  margin: 0.4rem 0 0.25rem;
 }
 /* First section title needs no top gap */
 .end-right .end-section-title:first-child { margin-top: 0; }
@@ -316,12 +320,12 @@ body {
 .stat-card-tv {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 0.4rem;
-  padding: 0.35rem 0.6rem;
+  padding: 0.5rem 0.8rem;
   border-left: 3px solid rgba(203, 154, 69, 0.5);
 }
 
 .stat-card-label {
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.35);
   text-transform: uppercase;
@@ -330,7 +334,7 @@ body {
 }
 
 .stat-card-value {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #fff;
   margin-bottom: 0.15rem;
@@ -340,7 +344,7 @@ body {
 }
 
 .stat-card-desc {
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.35);
   line-height: 1.4;
 }
@@ -357,12 +361,12 @@ body {
   .end-player-name { font-size: 20px; }
   .end-score { font-size: 20px; }
 
-  .end-section-title { font-size: 13px; margin: 14px 0 6px; }
+  .end-section-title { font-size: 15px; margin: 14px 0 6px; }
 
-  .stat-card-tv { padding: 10px 12px; }
-  .stat-card-label { font-size: 11px; }
-  .stat-card-value { font-size: 17px; }
-  .stat-card-desc { font-size: 12px; }
+  .stat-card-tv { padding: 10px 14px; }
+  .stat-card-label { font-size: 13px; }
+  .stat-card-value { font-size: 20px; }
+  .stat-card-desc { font-size: 14px; }
 }
 
 /* ---- Multi-column leaderboard for large parties ---- */
