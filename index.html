@@ -134,7 +134,7 @@
       // Scale leaderboard based on player count — never let players go off screen
       const count = state.players.length;
       const cols = count > 20 ? 3 : count > 10 ? 2 : 1;
-      const sizeClass = count > 20 ? ' lb-xl' : count > 10 ? ' lb-large' : count > 6 ? ' lb-small' : '';
+      const sizeClass = count > 20 ? ' lb-xl' : count > 10 ? ' lb-large' : '';
       gameScreen.className = `screen${sizeClass}`;
 
       // Round display
@@ -157,6 +157,7 @@
         playersList.style.gridAutoFlow = 'column';
         playersList.style.gap = '0.4rem 1rem';
         playersList.style.alignContent = 'start';
+        playersList.style.zoom = '';
       } else {
         playersList.style.cssText = '';
       }
@@ -182,6 +183,19 @@
           </div>
         `;
       }).join('');
+
+      // Dynamic zoom for single-column: scale rows so all players always fit on screen.
+      // zoom affects layout (unlike transform:scale), so padding/text all shrink proportionally.
+      if (cols === 1) {
+        requestAnimationFrame(() => {
+          const available = playersList.clientHeight;
+          const natural = playersList.scrollHeight;
+          if (natural > available && available > 0) {
+            // 0.97 buffer so the last row isn't flush against the bottom
+            playersList.style.zoom = String((available / natural) * 0.97);
+          }
+        });
+      }
 
       // Update previous banked state tracking
       state.players.forEach(p => {

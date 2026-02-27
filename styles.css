@@ -367,13 +367,6 @@ body {
 
 /* ---- Multi-column leaderboard for large parties ---- */
 
-/* 7-10 players: shrink rows so all fit on screen in one column */
-.lb-small .player-row { padding: 0.35rem 0.9rem; }
-.lb-small .player-name { font-size: 1.35rem; }
-.lb-small .player-score { font-size: 1.4rem; }
-.lb-small .rank { font-size: 1rem; }
-.lb-small.leaderboard { gap: 0.3rem; }
-
 /* 11+ players: two/three columns, smaller rows */
 .lb-large .player-row,
 .lb-xl .player-row {
