@@ -65,12 +65,27 @@
   <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
   <script>
     // Initialize Cast receiver if running inside Chromecast
+    // When the app sends a room code via the custom message channel,
+    // we reload with ?code= so the Firebase listener picks it up.
     if (window.cast && cast.framework) {
       const context = cast.framework.CastReceiverContext.getInstance();
       const options = new cast.framework.CastReceiverOptions();
       // CRITICAL: disableIdleTimeout prevents receiver closing mid-game
       // (default: Cast closes after ~5 min with no media activity)
       options.disableIdleTimeout = true;
+
+      context.addCustomMessageListener('urn:x-cast:com.bank.roomcode', (event) => {
+        try {
+          const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          const roomCode = data?.roomCode;
+          if (roomCode && new URLSearchParams(window.location.search).get('code') !== roomCode) {
+            window.location.replace(window.location.pathname + '?code=' + encodeURIComponent(roomCode));
+          }
+        } catch {
+          // malformed message — ignore
+        }
+      });
+
       context.start(options);
     }
   </script>
