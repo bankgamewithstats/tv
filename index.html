@@ -52,7 +52,10 @@
   <!-- Live leaderboard -->
   <div id="game-screen" class="screen hidden">
     <header class="game-header">
-      <div class="round-display" id="round-display">Round 1 / 10</div>
+      <div class="round-info">
+        <div class="round-display" id="round-display">Round 1 / 10</div>
+        <div class="round-phase" id="round-phase"></div>
+      </div>
       <span class="pot-value" id="pot-value">0</span>
       <div class="header-logo">
         <img src="logo.png" alt="Bank" class="logo-img" />
@@ -60,6 +63,14 @@
     </header>
     <main class="leaderboard" id="players-list"></main>
   </div>
+
+  <!-- Round transition overlay — shown briefly when a new round starts -->
+  <div id="round-overlay" class="round-overlay hidden">
+    <div class="round-overlay-text" id="round-overlay-text">Round 1</div>
+  </div>
+
+  <!-- Resolution debug overlay — remove before shipping -->
+  <div id="resolution-display" style="position:fixed;bottom:8px;right:12px;font-size:11px;color:rgba(255,255,255,0.35);z-index:9999;font-family:monospace;pointer-events:none;"></div>
 
   <!-- Google Cast Receiver SDK — no-op in non-Cast browsers -->
   <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
@@ -105,6 +116,18 @@
       appId: "1:333591070423:web:ab922405955584dfb39292"
     };
 
+    // Resolution debug display
+    const resEl = document.getElementById('resolution-display');
+    function updateResDisplay() {
+      const sw = window.screen.width, sh = window.screen.height;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      const fs = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      resEl.textContent = `screen ${sw}×${sh}  viewport ${vw}×${vh}  dpr ${dpr}  1rem=${fs.toFixed(1)}px`;
+    }
+    updateResDisplay();
+    window.addEventListener('resize', updateResDisplay);
+
     const code = new URLSearchParams(window.location.search).get('code');
 
     const waitingScreen = document.getElementById('waiting-screen');
@@ -141,8 +164,23 @@
       return n.toLocaleString();
     }
 
-    // Track previous isBanked state per player id for flash animation detection
+    // Track previous state for change detection
     const prevBankedState = {};
+    let prevRound = null;
+
+    function showRoundTransition(roundNum, totalRounds) {
+      const overlay = document.getElementById('round-overlay');
+      const overlayText = document.getElementById('round-overlay-text');
+      const isFinal = roundNum === totalRounds;
+      overlayText.textContent = isFinal ? 'Final Round' : `Round ${roundNum}`;
+      overlay.classList.remove('hidden', 'fade-out');
+      overlay.classList.add('fade-in');
+      setTimeout(() => {
+        overlay.classList.remove('fade-in');
+        overlay.classList.add('fade-out');
+        setTimeout(() => overlay.classList.add('hidden'), 600);
+      }, 2200);
+    }
 
     function renderLeaderboard(state) {
       // Show game screen
@@ -154,8 +192,20 @@
       const sizeClass = count > 20 ? ' lb-xl' : count > 10 ? ' lb-large' : '';
       gameScreen.className = `screen${sizeClass}`;
 
-      // Round display
+      // Round transition: fire overlay when round number changes
+      if (prevRound !== null && state.currentRound !== prevRound) {
+        showRoundTransition(state.currentRound, state.totalRounds);
+      }
+      prevRound = state.currentRound;
+
+      // Round display + opening phase badge
       roundDisplay.textContent = `Round ${state.currentRound} / ${state.totalRounds}`;
+      const phaseEl = document.getElementById('round-phase');
+      if (phaseEl) {
+        const isOpening = (state.rollCount ?? 0) < 3;
+        phaseEl.textContent = isOpening ? 'Opening' : '';
+        phaseEl.style.display = isOpening ? '' : 'none';
+      }
 
       // Pot display
       potValue.textContent = formatScore(state.pot);
@@ -262,13 +312,13 @@
 
       document.getElementById('stat-player-awards').innerHTML = [
         statCard('Most Greedy Turn',
-          s.mostGreedy ? `${s.mostGreedy.playerName} — ${s.mostGreedy.rollNumber} rolls (Rd ${s.mostGreedy.roundNumber})` : null,
-          'Pushed their luck the longest in a single round.'),
+          s.mostGreedy ? `${s.mostGreedy.playerName ?? 'Unknown'} — ${s.mostGreedy.rollCount ?? '?'} rolls after others banked (Rd ${s.mostGreedy.roundNumber ?? '?'})` : null,
+          'Kept rolling after everyone else already banked.'),
         statCard('Best Banker',
           s.bestBanker ? `${s.bestBanker.playerName} — avg ${formatScore(s.bestBanker.avgAmount)} pts` : null,
           'Highest average points per successful bank.'),
         statCard('Early Cash-Out',
-          s.earlyCashOut ? `${s.earlyCashOut.playerName} — avg roll ${s.earlyCashOut.avgRolls}` : null,
+          s.earlyCashOut ? `${s.earlyCashOut.playerName} — avg ${s.earlyCashOut.avgRolls} rolls/round` : null,
           'Banked the earliest on average — cautious and smart.'),
         statCard('Perfect Timing',
           s.perfectTiming ? `${s.perfectTiming.playerName} — ${s.perfectTiming.count}x (best ${formatScore(s.perfectTiming.bestAmount)} pts)` : null,
@@ -297,18 +347,28 @@
         statCard('Biggest Missed Opportunity',
           s.closestCall ? `Round ${s.closestCall.roundNumber} — ${formatScore(s.closestCall.potAmount)} pts wiped` : null,
           'Highest pot sitting in the bank when a 7 wiped it.'),
-        statCard('Wildest Round',
+        statCard('Longest Round',
           s.wildestRound ? `Round ${s.wildestRound.roundNumber} — ${s.wildestRound.rollCount} rolls` : null,
           'The round with the most total dice rolls.'),
       ].join('');
 
-      // Auto-scroll the player standings on TV if more players than fit on screen
       requestAnimationFrame(() => {
+        // Left panel: auto-scroll standings if more players than fit
         const endLeft = document.querySelector('.end-left');
         if (endLeft) {
           endLeft.scrollTop = 0;
           if (endLeft.scrollHeight > endLeft.clientHeight + 4) {
             autoScrollLoop(endLeft);
+          }
+        }
+
+        // Right panel: zoom to fill available height (scales up or down as needed)
+        const endRight = document.querySelector('.end-right');
+        if (endRight && window.innerWidth >= 700) {
+          endRight.style.zoom = ''; // clear first so scrollHeight reflects natural size
+          const ratio = endRight.clientHeight / endRight.scrollHeight;
+          if (Math.abs(ratio - 1) > 0.02) { // skip if already ~fits
+            endRight.style.zoom = String(ratio * 0.97);
           }
         }
       });
@@ -318,14 +378,15 @@
     // Smoothly scrolls the standings list down then back up on repeat,
     // so a TV viewer never misses players that don't fit on screen.
 
-    let scrollLoopRaf = null;
+    // Tracks active scroll loops per element so multiple panels can scroll independently
+    const activeScrollLoops = new Map();
 
     function easeInOut(t) {
       return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     }
 
     function autoScrollLoop(el) {
-      if (scrollLoopRaf) cancelAnimationFrame(scrollLoopRaf);
+      if (activeScrollLoops.has(el)) cancelAnimationFrame(activeScrollLoops.get(el));
 
       const SCROLL_MS  = 10000; // time to scroll full list top→bottom
       const PAUSE_MS   = 2000;  // pause at each end
@@ -355,17 +416,15 @@
           if (t >= 1) { phase = 'pause-top'; phaseStart = ts; }
         }
 
-        scrollLoopRaf = requestAnimationFrame(tick);
+        activeScrollLoops.set(el, requestAnimationFrame(tick));
       }
 
-      scrollLoopRaf = requestAnimationFrame(tick);
+      activeScrollLoops.set(el, requestAnimationFrame(tick));
     }
 
     function stopScrollLoop() {
-      if (scrollLoopRaf) {
-        cancelAnimationFrame(scrollLoopRaf);
-        scrollLoopRaf = null;
-      }
+      for (const rafId of activeScrollLoops.values()) cancelAnimationFrame(rafId);
+      activeScrollLoops.clear();
     }
 
     // ---- Confetti ----
