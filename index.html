@@ -71,6 +71,7 @@
 
   <!-- Resolution debug overlay — remove before shipping -->
   <div id="resolution-display" style="position:fixed;bottom:8px;right:12px;font-size:11px;color:rgba(255,255,255,0.35);z-index:9999;font-family:monospace;pointer-events:none;"></div>
+  <div style="position:fixed;bottom:28px;right:12px;font-size:11px;color:rgba(255,255,255,0.35);z-index:9999;font-family:monospace;pointer-events:none;">v1.5</div>
 
   <!-- Google Cast Receiver SDK — no-op in non-Cast browsers -->
   <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
@@ -204,7 +205,7 @@
       if (phaseEl) {
         const rolls = Math.max(1, state.rollCount ?? 0);
         phaseEl.textContent = `Roll ${rolls}`;
-        phaseEl.style.color = rolls <= 3 ? '#cb9a45' : '#ffffff';
+        phaseEl.style.color = '#cb9a45';
         phaseEl.style.display = '';
       }
 
