@@ -202,9 +202,10 @@
       roundDisplay.textContent = `Round ${state.currentRound} / ${state.totalRounds}`;
       const phaseEl = document.getElementById('round-phase');
       if (phaseEl) {
-        const isOpening = (state.rollCount ?? 0) < 3;
-        phaseEl.textContent = isOpening ? 'Opening' : '';
-        phaseEl.style.display = isOpening ? '' : 'none';
+        const rolls = state.rollCount ?? 0;
+        phaseEl.textContent = `Roll ${rolls}`;
+        phaseEl.style.color = rolls <= 3 ? '#cb9a45' : '#ffffff';
+        phaseEl.style.display = '';
       }
 
       // Pot display
@@ -312,8 +313,8 @@
 
       document.getElementById('stat-player-awards').innerHTML = [
         statCard('Most Greedy Turn',
-          s.mostGreedy ? `${s.mostGreedy.playerName ?? 'Unknown'} — ${s.mostGreedy.rollCount ?? '?'} rolls after others banked (Rd ${s.mostGreedy.roundNumber ?? '?'})` : null,
-          'Kept rolling after everyone else already banked.'),
+          s.mostGreedy ? `${s.mostGreedy.playerName ?? 'Unknown'} (Rd ${s.mostGreedy.roundNumber ?? '?'})` : null,
+          s.mostGreedy ? `${s.mostGreedy.rollCount ?? '?'} roll${s.mostGreedy.rollCount === 1 ? '' : 's'} after others banked.` : 'No data.'),
         statCard('Best Banker',
           s.bestBanker ? `${s.bestBanker.playerName} — avg ${formatScore(s.bestBanker.avgAmount)} pts` : null,
           'Highest average points per successful bank.'),
